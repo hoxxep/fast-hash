@@ -1,0 +1,21 @@
+[package]
+name = "fast-hash"
+version = "0.1.0"
+edition = "2021"
+#rust-version = "1.83.0"  # prt.addr() limits us here
+repository = "https://github.com/hoxxep/fast-hash"
+description = "A faster Hash trait."
+keywords = ["hash", "hashing", "stable", "algorithms", "no-std"]
+categories = ["algorithms", "no-std"]
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+authors = ["Liam Gray <gmail@liamg.me>"]
+
+[features]
+default = ["std"]
+alloc = [] # enable FastHash implementations of alloc types, String and Vec
+std = ["alloc"]  # enable FastHash implementations of std library types
+
+[dependencies]
+fast-hash-macros = { path = "../fast-hash-macros" }
+rustversion = "1.0.21"

@@ -1,0 +1,1 @@
+This crate provides macros for the [fast-hash](https://crates.io/crates/fast-hash) crate, which is an experimental set of improvements to the standard library's hashing traits. Don't use this crate directly.

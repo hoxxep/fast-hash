@@ -1,0 +1,20 @@
+[package]
+name = "fast-hash-macros"
+version = "0.1.1"
+edition = "2021"
+rust-version = "1.57.0"
+repository = "https://github.com/hoxxep/fast-hash"
+description = "Macros for a faster Hash trait"
+keywords = ["hash", "hashing", "stable", "algorithms", "no-std"]
+categories = ["algorithms", "no-std"]
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+authors = ["Liam Gray <gmail@liamg.me>"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0"
+quote = "1.0"
+syn = "2.0"

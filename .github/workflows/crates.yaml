@@ -1,0 +1,35 @@
+name: Publish to crates.io
+on:
+  workflow_dispatch: # only on manual triggering, must be against a git tag
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    environment: crates.io
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-get
+        run: cargo install cargo-get
+      - name: Check git tag and crate version match
+        working-directory: portable-hash
+        run: |
+          PKG_VERSION=$(cargo get package.version --pretty)
+          TAG_VERSION=${{ github.ref_name }}
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+              echo "Version mismatch: $PKG_VERSION != $TAG_VERSION"
+              exit 1
+          fi
+      - name: Publish portable-hash-macros to crates.io
+        env:
+          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+        run: |
+          cargo publish -p portable-hash-macros --token ${CRATES_TOKEN}
+      - name: Publish portable-hash to crates.io
+        env:
+          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+        run: |
+          cargo publish -p portable-hash --token ${CRATES_TOKEN}

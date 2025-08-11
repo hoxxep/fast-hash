@@ -1,0 +1,133 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test-std:
+    name: "Tests"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Rust dependency cache
+        uses: Swatinem/rust-cache@v2
+      - name: Compile and run tests
+        run: cargo test --no-fail-fast
+
+  test-no-std:
+    name: "Tests (no std)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Rust dependency cache
+        uses: Swatinem/rust-cache@v2
+      - name: Compile and run tests (no std)
+        run: cargo test -p portable-hash --lib --tests --no-default-features --no-fail-fast
+
+  test-portability:
+    name: "Tests (portability)"
+    strategy:
+      matrix:
+        rust_version:
+          # - 1.57.0  # MSRV (can't get various libs to play nicely pre 1.63)
+          - 1.63.0
+          - 1.64.0  # CStr and CString stabilised
+          - 1.73.0
+          - 1.74.0  # Saturating stabilised
+          - 1.77.0
+          - 1.78.0  # Ptr<T> impl using associated generics
+          - stable
+          - nightly
+        host:
+          - ubuntu-latest
+          # - windows-latest
+    runs-on: ${{ matrix.host }}
+    env:
+      RUST_VERSION: ${{ matrix.rust_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Rust dependency cache
+        uses: Swatinem/rust-cache@v2
+      - name: Install Rust (rustup, ${{ env.RUST_VERSION }})
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup update ${{ env.RUST_VERSION }} --no-self-update
+          rustup default ${{ env.RUST_VERSION }}
+          cargo -V
+          rustc -V
+      - name: Compile and run sha-hasher tests to confirm portability
+        run: cargo test -p sha-hasher --lib --tests --all-features --no-fail-fast
+
+  test-msrv:
+    name: "Tests (MSRV)"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # We test the MSRV for the version before and on every rustversion gate that we have in the
+        # codebase to ensure that each version boundary is covered. It's unnecessary to test
+        # absolutely all releases! Remember to add new versions if we add more boundaries.
+        rust_version:
+          - 1.57.0  # MSRV
+          - 1.63.0
+          - 1.64.0  # CStr and CString stabilised
+          - 1.73.0
+          - 1.74.0  # Saturating stabilised
+          - 1.77.0
+          - 1.78.0  # Ptr<T> impl using associated generics
+          - stable
+          - nightly
+    env:
+      RUST_VERSION: ${{ matrix.rust_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Rust dependency cache
+        uses: Swatinem/rust-cache@v2
+      - name: Install Rust (rustup, ${{ env.RUST_VERSION }})
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup update ${{ env.RUST_VERSION }} --no-self-update
+          rustup default ${{ env.RUST_VERSION }}
+          cargo -V
+          rustc -V
+      - name: Compile and run portable-hash tests (no std)
+        run: cargo test -p portable-hash --lib --tests --no-default-features --no-fail-fast
+
+  test-msrv-macros:
+    name: "Tests (MSRV, macro only)"
+    runs-on: ubuntu-latest
+    env:
+      RUST_VERSION: 1.57.0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Rust dependency cache
+        uses: Swatinem/rust-cache@v2
+      - name: Install Rust (rustup, ${{ env.RUST_VERSION }})
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup update ${{ env.RUST_VERSION }} --no-self-update
+          rustup default ${{ env.RUST_VERSION }}
+          cargo -V
+          rustc -V
+      - name: Bodge workspace members for package resolution
+        run: |
+          set -euo pipefail
+          echo '[workspace]' > Cargo.toml
+          echo 'resolver = "2"' >> Cargo.toml
+          echo 'members = ["portable-hash-macros"]' >> Cargo.toml
+          cat Cargo.toml
+      - name: Compile and run tests (no std)
+        run: cargo test -p portable-hash-macros --lib --tests --no-default-features --no-fail-fast
