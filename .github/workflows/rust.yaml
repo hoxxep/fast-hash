@@ -14,7 +14,7 @@ jobs:
     name: "Tests"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
@@ -25,7 +25,7 @@ jobs:
     name: "Tests (no std)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
@@ -53,7 +53,7 @@ jobs:
     env:
       RUST_VERSION: ${{ matrix.rust_version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
@@ -89,7 +89,7 @@ jobs:
     env:
       RUST_VERSION: ${{ matrix.rust_version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
@@ -110,7 +110,7 @@ jobs:
     env:
       RUST_VERSION: 1.57.0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
